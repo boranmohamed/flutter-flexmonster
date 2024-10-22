@@ -13,6 +13,7 @@ class Flexmonster extends StatelessWidget {
       String? width,
       bool? toolbar,
       String? licenseKey,
+      required List<ChartType> this.visibleCharts,
       dynamic report,
       dynamic global,
       dynamic accessibility,
@@ -33,6 +34,7 @@ class Flexmonster extends StatelessWidget {
   String? _width, _height, _licenseKey;
   bool? _toolbar;
   dynamic _report, _global, _accessibility, _shareReportConnection;
+  List<ChartType> visibleCharts;
 
   ///This API call returns report JSON object as string
   Future<dynamic> getReport() async {
@@ -655,6 +657,32 @@ class Flexmonster extends StatelessWidget {
                 shareReportConnection: ${jsonEncode(_shareReportConnection)}
                 });
             ${_registerEvents()}
+            
+            // Pass the visible charts (from Flutter Enum) to JavaScript
+            let visibleCharts = ${jsonEncode(visibleCharts.map((chart) => chart.id).toList())};
+        
+            function customizeToolbar(toolbar) {
+                // Get all tabs
+                let tabs = toolbar.getTabs();
+        
+                // Modify the getTabs function to filter the chart types
+                toolbar.getTabs = function() {
+                    // Only keep the "Charts" tab
+                    tabs = tabs.filter(tab => tab.id == "fm-tab-charts");
+        
+                    // Find the Charts tab and modify its options
+                    tabs.forEach(tab => {
+                        if (tab.id === "fm-tab-charts") {
+                            // Remove charts not included in the visibleCharts list
+                            tab.menu = tab.menu.filter(chart => visibleCharts.includes(chart.id));
+                        }
+                    });
+        
+                    return tabs;
+                };
+            }
+
+         
         </script>
   </body>
   </html>
@@ -664,3 +692,28 @@ class Flexmonster extends StatelessWidget {
     );
   }
 }
+
+enum ChartType {
+  Column("fm-tab-charts-column"),
+  BarHorizontal("fm-tab-charts-bar-horizontal"),
+  Line("fm-tab-charts-line"),
+  Scatter("fm-tab-charts-scatter"),
+  Pie("fm-tab-charts-pie"),
+  StackedColumn("fm-tab-charts-stacked-column"),
+  ColumnLine("fm-tab-charts-column-line"),
+  Multiple("fm-tab-charts-multiple");
+
+  final String id;
+
+  const ChartType(this.id);
+
+  static ChartType? fromId(String id) {
+    for (ChartType type in ChartType.values) {
+      if (type.id == id) {
+        return type;
+      }
+    }
+    return null;
+  }
+}
+
