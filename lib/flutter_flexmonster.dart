@@ -659,7 +659,6 @@ class Flexmonster extends StatelessWidget {
             ${_registerEvents()}
             
             // // Pass the visible charts (from Flutter Enum) to JavaScript
-            // let visibleCharts = ${jsonEncode(visibleCharts.map((chart) => chart.id).toList())};
             //
             // function customizeToolbar(toolbar) {
             //     // Get all tabs
