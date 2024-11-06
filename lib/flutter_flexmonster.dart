@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 // ignore: must_be_immutable
-class Flexmonster extends StatelessWidget {
-  final Completer<WebViewController> controller = Completer<WebViewController>();
-
+class Flexmonster extends StatefulWidget {
   Flexmonster(
       {String? height,
       String? width,
@@ -29,11 +27,19 @@ class Flexmonster extends StatelessWidget {
     _shareReportConnection = shareReportConnection;
   }
 
-  late Map<String, List<Function>> eventHandlers = {};
   String? _width, _height, _licenseKey;
   bool? _toolbar;
   dynamic _report, _global, _accessibility, _shareReportConnection;
   List<ChartType> visibleCharts;
+
+  @override
+  State<Flexmonster> createState() => _FlexmonsterState();
+}
+
+class _FlexmonsterState extends State<Flexmonster> {
+  final Completer<WebViewController> controller = Completer<WebViewController>();
+
+  late Map<String, List<Function>> eventHandlers = {};
 
   ///This API call returns report JSON object as string
   Future<dynamic> getReport() async {
@@ -451,7 +457,6 @@ class Flexmonster extends StatelessWidget {
   }
 
   //Expands all nodes and drills down all levels of all hierarchies in the slice on the grid and on charts.
-  //All collapsed/drilled up nodes will be expanded/drilled down on the grid and on charts.
   Future<void> expandAllData([bool withAllChildren = true]) async {
     WebViewController apiController = await controller.future;
     await apiController.runJavaScript("flexmonster.expandAllData($withAllChildren)");
@@ -569,9 +574,11 @@ class Flexmonster extends StatelessWidget {
     return strings.join();
   }
 
+  late WebViewController flexMonsterController;
+
   @override
-  Widget build(BuildContext context) {
-    WebViewController controller = WebViewController()
+  void initState() {
+    flexMonsterController = WebViewController()
       ..loadRequest(Uri.parse("https://www.google.com/"))
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -643,20 +650,20 @@ Page resource error:
                   let pivot = new Flexmonster({
                       container: "#pivot-container",
                       componentFolder: "https://cdn.flexmonster.com/",
-                      toolbar: ${_toolbar ?? false},
-                      height: "${_height ?? "500"}",
-                      width: "${_width ?? "100%"}",
-                      licenseKey: "${_licenseKey ?? ""}",
-                      report:  ${jsonEncode(_report)},
-                      global: ${jsonEncode(_global)},
-                      accessibility: ${jsonEncode(_accessibility)},
-                      shareReportConnection: ${jsonEncode(_shareReportConnection)},
+                      toolbar: ${widget._toolbar ?? false},
+                      height: "${widget._height ?? "500"}",
+                      width: "${widget._width ?? "100%"}",
+                      licenseKey: "${widget._licenseKey ?? ""}",
+                      report:  ${jsonEncode(widget._report)},
+                      global: ${jsonEncode(widget._global)},
+                      accessibility: ${jsonEncode(widget._accessibility)},
+                      shareReportConnection: ${jsonEncode(widget._shareReportConnection)},
                       beforetoolbarcreated: customizeToolbar
                       });
                   ${_registerEvents()}
 
                   // Pass the visible charts (from Flutter Enum) to JavaScript
-                  let visibleCharts = ${jsonEncode(visibleCharts.map((chart) => chart.id).toList())};
+                  let visibleCharts = ${jsonEncode(widget.visibleCharts.map((chart) => chart.id).toList())};
 
                   function customizeToolbar(toolbar) {
                       // Get all tabs
@@ -684,9 +691,13 @@ Page resource error:
         </body>
         </html>
         ''');
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return WebViewWidget(
-      controller: controller,
+      controller: flexMonsterController,
       //     javascriptMode: JavaScriptMode.unrestricted,
       //     javascriptChannels: {
       //       JavascriptChannel(
