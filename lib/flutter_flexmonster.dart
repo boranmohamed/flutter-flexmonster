@@ -788,6 +788,7 @@ Page resource error:
       // ''');
       //     },
       //     gestureNavigationEnabled: true,
+    //
     );
   }
 }
