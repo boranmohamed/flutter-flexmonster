@@ -572,7 +572,37 @@ class Flexmonster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WebViewController controller = WebViewController()
-      // ..loadRequest(Uri.parse(widget.link))
+      ..loadRequest(Uri.parse("https://www.google.com/"))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            debugPrint('WebView is loading (progress : $progress%)');
+          },
+          onPageStarted: (String url) {
+            debugPrint('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            debugPrint('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+Page resource error:
+  code: ${error.errorCode}
+  description: ${error.description}
+  errorType: ${error.errorType}
+  isForMainFrame: ${error.isForMainFrame}
+          ''');
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              debugPrint('blocking navigation to ${request.url}');
+              return NavigationDecision.prevent;
+            }
+            debugPrint('allowing navigation to ${request.url}');
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..addJavaScriptChannel("FlutterWebViewChannel",
@@ -591,69 +621,69 @@ class Flexmonster extends StatelessWidget {
         }
       })
       ..loadHtmlString('''  <!DOCTYPE html>
-  <html>
+        <html>
 
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.flexmonster.com/flexmonster.min.css" rel="stylesheet">
-    <script src="https://cdn.flexmonster.com/toolbar/flexmonster.toolbar.js"></script>
-    <script src="https://cdn.flexmonster.com/flexmonster.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/d3.v3.min.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/canvg.min.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/html2canvas.min.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/jspdf.min.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/promise.min.js"></script>
-    <script src="https://cdn.flexmonster.com/lib/sha1.min.js"></script>
-  </head>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link href="https://cdn.flexmonster.com/flexmonster.min.css" rel="stylesheet">
+          <script src="https://cdn.flexmonster.com/toolbar/flexmonster.toolbar.js"></script>
+          <script src="https://cdn.flexmonster.com/flexmonster.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/d3.v3.min.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/canvg.min.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/html2canvas.min.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/jspdf.min.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/promise.min.js"></script>
+          <script src="https://cdn.flexmonster.com/lib/sha1.min.js"></script>
+        </head>
 
-  <body style="margin:0; padding:0; display: flex; height: 100vh;">
-    <div id="pivot-container"></div>
-        <script>
-            let pivot = new Flexmonster({
-                container: "#pivot-container",
-                componentFolder: "https://cdn.flexmonster.com/",
-                toolbar: ${_toolbar ?? false},
-                height: "${_height ?? "500"}",
-                width: "${_width ?? "100%"}",
-                licenseKey: "${_licenseKey ?? ""}",
-                report:  ${jsonEncode(_report)},
-                global: ${jsonEncode(_global)},
-                accessibility: ${jsonEncode(_accessibility)},
-                shareReportConnection: ${jsonEncode(_shareReportConnection)},
-                beforetoolbarcreated: customizeToolbar
-                });
-            ${_registerEvents()}
-            
-            // Pass the visible charts (from Flutter Enum) to JavaScript
-            let visibleCharts = ${jsonEncode(visibleCharts.map((chart) => chart.id).toList())};
-        
-            function customizeToolbar(toolbar) {
-                // Get all tabs
-                let tabs = toolbar.getTabs();
-        
-                // Modify the getTabs function to filter the chart types
-                toolbar.getTabs = function() {
-                    // Only keep the "Charts" tab
-                    tabs = tabs.filter(tab => tab.id == "fm-tab-charts");
-        
-                    // Find the Charts tab and modify its options
-                    tabs.forEach(tab => {
-                        if (tab.id === "fm-tab-charts") {
-                            // Remove charts not included in the visibleCharts list
-                            tab.menu = tab.menu.filter(chart => visibleCharts.includes(chart.id));
-                        }
-                    });
-        
-                    return tabs;
-                };
-            }
+        <body style="margin:0; padding:0; display: flex; height: 100vh;">
+          <div id="pivot-container"></div>
+              <script>
+                  let pivot = new Flexmonster({
+                      container: "#pivot-container",
+                      componentFolder: "https://cdn.flexmonster.com/",
+                      toolbar: ${_toolbar ?? false},
+                      height: "${_height ?? "500"}",
+                      width: "${_width ?? "100%"}",
+                      licenseKey: "${_licenseKey ?? ""}",
+                      report:  ${jsonEncode(_report)},
+                      global: ${jsonEncode(_global)},
+                      accessibility: ${jsonEncode(_accessibility)},
+                      shareReportConnection: ${jsonEncode(_shareReportConnection)},
+                      beforetoolbarcreated: customizeToolbar
+                      });
+                  ${_registerEvents()}
 
-         
-        </script>
-  </body>
-  </html>
-  ''');
+                  // Pass the visible charts (from Flutter Enum) to JavaScript
+                  let visibleCharts = ${jsonEncode(visibleCharts.map((chart) => chart.id).toList())};
+
+                  function customizeToolbar(toolbar) {
+                      // Get all tabs
+                      let tabs = toolbar.getTabs();
+
+                      // Modify the getTabs function to filter the chart types
+                      toolbar.getTabs = function() {
+                          // Only keep the "Charts" tab
+                          tabs = tabs.filter(tab => tab.id == "fm-tab-charts");
+
+                          // Find the Charts tab and modify its options
+                          tabs.forEach(tab => {
+                              if (tab.id === "fm-tab-charts") {
+                                  // Remove charts not included in the visibleCharts list
+                                  tab.menu = tab.menu.filter(chart => visibleCharts.includes(chart.id));
+                              }
+                          });
+
+                          return tabs;
+                      };
+                  }
+
+
+              </script>
+        </body>
+        </html>
+        ''');
 
     return WebViewWidget(
       controller: controller,
