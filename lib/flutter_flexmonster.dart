@@ -579,7 +579,7 @@ class _FlexmonsterState extends State<Flexmonster> {
   @override
   void initState() {
     flexMonsterController = WebViewController()
-      ..loadRequest(Uri.parse("https://www.google.com/"))
+      // ..loadRequest(Uri.parse("https://www.google.com/"))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
