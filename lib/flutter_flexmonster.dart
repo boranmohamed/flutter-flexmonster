@@ -654,7 +654,8 @@ class Flexmonster extends StatelessWidget {
                 report:  ${jsonEncode(_report)},
                 global: ${jsonEncode(_global)},
                 accessibility: ${jsonEncode(_accessibility)},
-                shareReportConnection: ${jsonEncode(_shareReportConnection)}
+                shareReportConnection: ${jsonEncode(_shareReportConnection)},
+                beforetoolbarcreated: customizeToolbar
                 });
             ${_registerEvents()}
             
