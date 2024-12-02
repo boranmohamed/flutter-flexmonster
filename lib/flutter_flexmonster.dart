@@ -669,7 +669,7 @@ class Flexmonster extends StatelessWidget {
                 // Modify the getTabs function to filter the chart types
                 toolbar.getTabs = function() {
                     // Only keep the "Charts" tab
-                    tabs = tabs.filter(tab => tab.id == "fm-tab-charts");
+                    tabs = tabs.filter(tab => tab.id == "fm-tab-charts" || tab.id == "fm-tab-grid");
         
                     // Find the Charts tab and modify its options
                     tabs.forEach(tab => {
