@@ -13,6 +13,7 @@ class Flexmonster extends StatelessWidget {
       String? width,
       bool? toolbar,
       String? licenseKey,
+      String? baseUrl,
       required List<ChartType> this.visibleCharts,
       dynamic report,
       dynamic global,
@@ -28,10 +29,13 @@ class Flexmonster extends StatelessWidget {
     _global = global;
     _accessibility = accessibility;
     _shareReportConnection = shareReportConnection;
+    _baseUrl = baseUrl ;
   }
 
   late Map<String, List<Function>> eventHandlers = {};
   String? _width, _height, _licenseKey;
+
+  String? _baseUrl ;
   bool? _toolbar;
   dynamic _report, _global, _accessibility, _shareReportConnection;
   List<ChartType> visibleCharts;
@@ -687,7 +691,7 @@ class Flexmonster extends StatelessWidget {
         </script>
   </body>
   </html>
-  ''', baseUrl: 'https://dataharbor.opaz.gov.om');
+  ''', baseUrl: _baseUrl ?? '');
       },
       gestureNavigationEnabled: true,
     );
