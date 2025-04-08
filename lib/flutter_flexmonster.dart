@@ -687,7 +687,7 @@ class Flexmonster extends StatelessWidget {
         </script>
   </body>
   </html>
-  ''');
+  ''', baseUrl: 'https://dataharbor.opaz.gov.om');
       },
       gestureNavigationEnabled: true,
     );
